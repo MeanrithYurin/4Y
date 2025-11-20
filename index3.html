@@ -1,0 +1,2051 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4Youth - Interview Prep Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Battambang:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0D1B2A;
+            --bg-secondary: #1B263B;
+            --bg-accent: #415A77;
+            --text-primary: #E0E1DD;
+            --text-secondary: #b0b2af;
+            --accent-primary: #FFC300;
+            --accent-secondary: #ffd60a;
+            --font-en: 'Inter', sans-serif;
+            --font-km: 'Battambang', cursive;
+        }
+        html.light {
+            --bg-primary: #F8F9FA;
+            --bg-secondary: #FFFFFF;
+            --bg-accent: #E9ECEF;
+            --text-primary: #0080ff; 
+            --text-secondary: #3973ad;
+        }
+        body {
+            font-family: var(--font-en);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.km {
+            font-family: var(--font-km);
+        }
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.7); }
+        .card { transform-style: preserve-3d; transition: transform 0.6s; }
+        .card.is-flipped { transform: rotateY(180deg); }
+        .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .card-back { transform: rotateY(180deg); }
+        
+        .bg-primary { background-color: var(--bg-primary); }
+        .bg-secondary { background-color: var(--bg-secondary); }
+        .bg-accent { background-color: var(--bg-accent); }
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .text-accent { color: var(--accent-primary); }
+        .border-accent { border-color: var(--accent-primary); }
+        
+        html.light .text-primary, 
+        html.light .text-primary a,
+        html.light .member-card h4,
+        html.light .table-container { 
+            color: var(--text-primary) !important;
+        }
+        html.light .table-container th {
+             color: var(--accent-primary) !important;
+        }
+        html.light .text-secondary {
+             color: var(--text-secondary) !important;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            background-color: var(--bg-accent);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+        html.light .form-input, html.light .form-select, html.light .form-textarea {
+             color: #212529;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: var(--accent-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 195, 0, 0.3);
+        }
+        html.light .btn-primary {
+             color: #0D1B2A;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        .btn-secondary:hover {
+            background-color: var(--accent-primary);
+            color: var(--bg-secondary);
+        }
+        html.light .btn-secondary:hover {
+            color: #0D1B2A;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-edit {
+            background-color: #007bff;
+            color: white;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+        .btn-edit:hover {
+            background-color: #0069d9;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 10px; }
+        
+        .table-container {
+            max-height: 20rem;
+            overflow-y: auto;
+            border: 1px solid var(--bg-accent);
+            border-radius: 0.375rem;
+            background-color: var(--bg-primary);
+        }
+        
+        #player-log-table, #donation-log-table {
+            width: 100%;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        #player-log-table th, #player-log-table td,
+        #donation-log-table th, #donation-log-table td {
+             padding: 8px 12px;
+             border-bottom: 1px solid var(--bg-accent);
+             vertical-align: top;
+        }
+         #player-log-table thead th, #donation-log-table thead th {
+            background-color: var(--bg-accent);
+            color: var(--accent-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        #player-log-table td:nth-child(3), 
+        #player-log-table td:nth-child(4) { 
+            white-space: pre-wrap;
+            word-break: break-word; 
+            max-width: 200px;
+        }
+        .a7-card-container {
+            width: 100%;
+            max-width: 250px; 
+            aspect-ratio: 0.707;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .member-card img {
+             aspect-ratio: 1 / 1;
+             object-fit: cover;
+        }
+        
+        .admin-edit-trigger {
+            display: none;
+        }
+        
+        .admin-view .admin-edit-trigger {
+            display: flex;
+        }
+
+        .admin-view [contenteditable="true"]:hover {
+            outline: 2px dashed var(--accent-primary);
+            cursor: text;
+        }
+        
+        .member-photo-input {
+            display: none;
+        }
+        
+        .slideshow-container {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.375rem;
+        }
+        .slideshow-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .slideshow-image.active {
+            opacity: 1;
+        }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.remove('light');
+        }
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                     fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        khmer: ['Battambang', 'cursive'],
+                    },
+                    colors: {
+                        'brand-blue': '#0D1B2A',
+                        'brand-yellow': '#FFC300',
+                        'brand-darkblue': '#1B263B',
+                        'brand-lightblue': '#415A77',
+                        'brand-light': '#E0E1DD'
+                   }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-b from-brand-blue to-brand-darkblue dark:from-brand-blue dark:to-brand-darkblue light:from-white light:to-gray-100 text-primary dark:text-brand-light light:text-brand-blue">
+
+    <header class="bg-brand-darkblue/80 light:bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-lg">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+             <a href="#" class="text-3xl font-bold text-brand-yellow flex items-center">
+                <img src="https://placehold.co/120x40/1B263B/FFC300?text=4Youth" alt="4Youth Logo" class="h-10">
+            </a>
+            <div class="hidden md:flex space-x-6 items-center text-primary">
+                <a href="#home" class="hover:text-brand-yellow transition" data-key="nav_home">Home</a>
+                <a href="#about" class="hover:text-brand-yellow transition" data-key="nav_about">About Us</a>
+                <a href="#activities" class="hover:text-brand-yellow transition" data-key="nav_activities">Our Activities</a>
+                <a href="#opportunities" class="hover:text-brand-yellow transition" data-key="nav_opportunities">Opportunities</a>
+                <a href="#contact" class="hover:text-brand-yellow transition" data-key="nav_contact">Contact Us</a>
+                <a href="#" id="nav-donate-btn" class="btn-primary font-semibold py-2 px-4 rounded-lg" data-key="nav_donate">Donate</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 text-sm">
+                    <button id="lang-en" class="font-semibold p-1 rounded disabled:opacity-50" data-lang="en">EN</button>
+                    <div class="w-px h-4 bg-brand-light/50"></div>
+                    <button id="lang-km" class="font-semibold p-1 rounded" data-lang="km">KM</button>
+                </div>
+                <button id="theme-toggle" class="w-8 h-8 rounded-full flex items-center justify-center text-brand-yellow">
+                    <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 10.607a1 1 0 011.414 0l.707-.707a1 1 0 11-1.414-1.414l-.707.707a1 1 0 010 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                </button>
+                <button id="mobile-menu-button" class="md:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                </button>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#home" class="block py-2 text-primary hover:text-brand-yellow transition" data-key="nav_home_mobile">Home</a>
+            <a href="#about" class="block py-2 text-primary hover:text-brand-yellow transition" data-key="nav_about_mobile">About Us</a>
+            <a href="#activities" class="block py-2 text-primary hover:text-brand-yellow transition" data-key="nav_activities_mobile">Our Activities</a>
+            <a href="#opportunities" class="block py-2 text-primary hover:text-brand-yellow transition" data-key="nav_opportunities_mobile">Opportunities</a>
+            <a href="#contact" class="block py-2 text-primary hover:text-brand-yellow transition" data-key="nav_contact_mobile">Contact Us</a>
+            <a href="#" id="mobile-nav-donate-btn" class="block py-2 text-brand-yellow" data-key="nav_donate_mobile">Donate</a>
+        </div>
+    </header>
+
+    <div class="bg-brand-darkblue light:bg-gray-100 text-center py-3 shadow-md border-b-2 border-brand-yellow/50">
+        <p class="text-xl font-bold">
+            <span id="player-count" class="text-brand-yellow">0</span> 
+            <span data-key="banner_players" class="text-primary light:text-secondary">players have joined the challenge!</span>
+        </p>
+    </div>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="home" class="min-h-screen flex items-center">
+            <div class="text-center w-full">
+                 <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6" data-key="home_title_main">Welcome to <span class="text-brand-yellow">4Youth!</span></h1>
+                 <p class="text-xl md:text-2xl text-secondary dark:text-secondary light:text-gray-600 max-w-3xl mx-auto mb-8" data-key="home_subtitle_main">
+                     Your interactive platform for engaging interview preparation through our unique card game.
+                 </p>
+                 <a href="#about" class="inline-block btn-secondary font-bold py-3 px-8 rounded-lg text-lg mr-4" data-key="home_learn_more">Learn More About Us</a>
+                 <a href="#activities" class="inline-block btn-primary font-bold py-3 px-8 rounded-lg text-lg" data-key="home_get_started">Get Started</a>
+            </div>
+        </section>
+          <!-- About Us Section -->
+        <section id="about" class="py-20">
+            <h2 class="text-4xl font-bold text-center mb-12" data-key="about_title">About Us</h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div class="space-y-4">
+                    <h3 class="text-3xl font-bold text-brand-yellow" data-key="about_subtitle">Our Mission</h3>
+                    <p class="text-lg text-secondary dark:text-secondary light:text-gray-600" data-key="about_description">
+                       4Youth is dedicated to empowering young individuals by providing innovative tools and resources for career development. We believe that effective interview preparation is key to unlocking potential and building confidence. Our card game is designed to make learning fun, interactive, and impactful.
+                    </p>
+                </div>
+                <div>
+                     <!-- You can manually change this src="... " to your image path -->
+                     <img id="about-team-photo" src="https://placehold.co/600x400/1B263B/E0E1DD?text=Our+Team" alt="4Youth Team" class="rounded-xl shadow-2xl w-full">
+                </div>
+            </div>
+
+            <h3 class="text-3xl font-bold text-center text-primary mb-8" data-key="about_team_title">Meet the Team</h3>
+
+            <!-- Project Managers -->
+            <div class="flex flex-wrap justify-center gap-8 mb-12">
+                 <div class="member-card bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center w-full md:w-1/3">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <!-- You can manually change this src="... " to your image path -->
+                        <img id="pm1-photo" src="https://i.postimg.cc/h4sZkJZV/molika.jpg" alt="Project Manager 1" class="w-32 h-32 rounded-xl object-cover border-4 border-brand-yellow">
+                    </div>
+                    <h4 id="pm1-name" class="text-xl font-bold member-text text-primary" contenteditable="false" data-key="pm1_name">Manager Name 1</h4>
+                    <p id="pm1-role" class="text-brand-yellow font-semibold mb-2 member-text" contenteditable="false" data-key="role_pm">Project Manager</p>
+                    <p id="pm1-quote" class="text-sm italic text-secondary member-text" contenteditable="false" data-key="pm1_quote">"Inspiring quote about leadership or youth empowerment."</p>
+                </div>
+                 <div class="member-card bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center w-full md:w-1/3">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <img id="pm2-photo" src="img/sovan.JPG" alt="Project Manager 2" class="w-32 h-32 rounded-xl object-cover border-4 border-brand-yellow">
+                    </div>
+                    <h4 id="pm2-name" class="text-xl font-bold member-text text-primary" contenteditable="false" data-key="pm2_name">Manager Name 2</h4>
+                    <p id="pm2-role" class="text-brand-yellow font-semibold mb-2 member-text" contenteditable="false" data-key="role_pm">Project Manager</p>
+                    <p id="pm2-quote" class="text-sm italic text-secondary member-text" contenteditable="false" data-key="pm2_quote">"Another insightful quote here."</p>
+                </div>
+            </div>
+
+            <!-- Members Row 1 -->
+            <div class="flex flex-wrap justify-center gap-8 mb-12">
+                <div class="member-card bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center w-full md:w-1/3">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <img id="m1-photo" src="https://i.postimg.cc/d0bWwrGD/marina.jpg" alt="Member 1" class="w-32 h-32 rounded-xl object-cover border-4 border-brand-yellow">
+                    </div>
+                    <h4 id="m1-name" class="text-xl font-bold member-text text-primary" contenteditable="false" data-key="m1_name">Member Name 1</h4>
+                    <p id="m1-role" class="text-brand-yellow font-semibold mb-2 member-text" contenteditable="false" >MONITORING & EVALUATION</p>
+                    <p id="m1-quote" class="text-sm italic text-secondary member-text" contenteditable="false" data-key="m1_quote">"Quote about teamwork or dedication."</p>
+                </div>
+                <div class="member-card bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center w-full md:w-1/3">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <img id="m2-photo" src="https://i.postimg.cc/hP9LkNt0/buth.jpg" alt="Member 2" class="w-32 h-32 rounded-xl object-cover border-4 border-brand-yellow">
+                    </div>
+                    <h4 id="m2-name" class="text-xl font-bold member-text" contenteditable="false" data-key="m2_name">Member Name 2</h4>
+                    <p id="m2-role" class="text-brand-yellow font-semibold mb-2 member-text" contenteditable="false" data-key="role_member">PROJECT COORDINATOR</p>
+                    <p id="m2-quote" class="text-sm italic text-secondary member-text" contenteditable="false" data-key="m2_quote">"Quote about learning or growth."</p>
+                </div>
+            </div>
+            
+             <!-- Members Row 2 -->
+             <div class="flex flex-wrap justify-center gap-8">
+                 <div class="member-card bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center w-full md:w-1/4">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <img id="m3-photo" src="https://i.postimg.cc/sXXG1Nzk/socheata.jpg" alt="Member 3" class="w-32 h-32 rounded-xl object-cover border-4 border-brand-yellow">
+                    </div>
+                    <h4 id="m3-name" class="text-xl font-bold member-text" contenteditable="false" data-key="m3_name">Member Name 3</h4>
+                    <p id="m3-role" class="text-brand-yellow font-semibold mb-2 member-text" contenteditable="false" >MONITORING& EVALUATION</p>
+                    <p id="m3-quote" class="text-sm italic text-secondary member-text" contenteditable="false" data-key="m3_quote">"Quote about innovation or creativity."</p>
+                </div>
+                 <div class="member-card bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center w-full md:w-1/4">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <img id="m4-photo" src="https://i.postimg.cc/sXXG1Nzk/socheata.jpg" alt="Member 4" class="w-32 h-32 rounded-xl object-cover border-4 border-brand-yellow">
+                    </div>
+                    <h4 id="m4-name" class="text-xl font-bold member-text" contenteditable="false" data-key="m4_name">Member Name 4</h4>
+                    <p id="m4-role" class="text-brand-yellow font-semibold mb-2 member-text" contenteditable="false" >FINANCE & LOGISTIC</p>
+                    <p id="m4-quote" class="text-sm italic text-secondary member-text" contenteditable="false" data-key="m4_quote">"Quote about collaboration."</p>
+                </div>
+                 <div class="member-card bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center w-full md:w-1/4">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <img id="m5-photo" src="https://i.postimg.cc/sXXG1Nzk/socheata.jpg" alt="Member 5" class="w-32 h-32 rounded-xl object-cover border-4 border-brand-yellow">
+                    </div>
+                    <h4 id="m5-name" class="text-xl font-bold member-text" contenteditable="false" data-key="m5_name">Member Name 5</h4>
+                    <p id="m5-role" class="text-brand-yellow font-semibold mb-2 member-text" contenteditable="false">SOCAIL MEDIA</p>
+                    <p id="m5-quote" class="text-sm italic text-secondary member-text" contenteditable="false" data-key="m5_quote">"Quote about making a difference."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- <section id="about" class="py-20">
+            <h2 class="text-4xl font-bold text-center mb-12" data-key="about_title">About Us</h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div class="space-y-4">
+                    <h3 class="text-3xl font-bold text-brand-yellow" data-key="about_subtitle">Our Mission</h3>
+                    <p class="text-lg text-secondary dark:text-secondary light:text-gray-600" data-key="about_description">
+                       4Youth is dedicated to empowering young individuals by providing innovative tools and resources for career development. We believe that effective interview preparation is key to unlocking potential and building confidence. Our card game is designed to make learning fun, interactive, and impactful.
+                    </p>
+                </div>
+                <div>
+                     <img id="about-team-photo" src="https://placehold.co/600x400/1B263B/E0E1DD?text=Our+Team" alt="4Youth Team" class="rounded-xl shadow-2xl w-full">
+                 </div>
+            </div>
+
+            <h3 class="text-3xl font-bold text-center text-primary mb-8" data-key="about_team_title">Meet the Team</h3>
+            <div class="text-center text-secondary mb-12">Team members section placeholder</div>
+        </section> -->
+
+        <section id="activities" class="py-20">
+            <h2 class="text-4xl font-bold text-center mb-12" data-key="activities_title">Our Activities</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center hover:shadow-brand-yellow/20 transition-shadow">
+                    <div class="slideshow-container mb-4 mx-auto">
+                        <img src="https://placehold.co/400x250/415A77/FFFFFF?text=Gallery" alt="Gallery" class="slideshow-image active" id="gallery-box-slideshow">
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-brand-yellow" data-key="activities_box1_title">Photo Gallery</h3>
+                    <p class="mb-4" data-key="activities_box1_desc">See our team and community in action.</p>
+                    <button id="open-gallery-btn" class="btn-secondary font-semibold py-2 px-6 rounded-lg" data-key="activities_box1_button">View All</button>
+                </div>
+                
+                <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg text-center hover:shadow-brand-yellow/20 transition-shadow">
+                    <div class="slideshow-container mb-4 mx-auto">
+                        <img src="https://placehold.co/400x250/FFC300/0D1B2A?text=Workshops" alt="Workshops" class="slideshow-image active" id="workshop-box-slideshow">
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-brand-yellow" data-key="activities_box3_title">Workshops</h3>
+                    <p class="mb-4" data-key="activities_box3_desc">Join our workshops on career development.</p>
+                    <button id="open-workshop-gallery-btn" class="btn-secondary font-semibold py-2 px-6 rounded-lg" data-key="activities_box3_button">View All</button>
+                </div>
+            </div>
+            <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-lg text-center hover:shadow-brand-yellow/20 transition-shadow">
+                <img src="https://placehold.co/820x250/415A77/FFFFFF?text=JOB+HUNT+DESK" alt="Card Game" class="rounded-md mb-4 mx-auto w-full object-cover">
+                <h3 class="text-3xl font-bold mb-2 text-brand-yellow" data-key="activities_game_title">JOB HUNT DESK</h3>
+                <p class="mb-6 max-w-2xl mx-auto" data-key="activities_game_desc">Ready to test your skills? Start the game, answer questions against the clock, and get feedback.</p>
+                <button id="start-game-btn" class="btn-primary font-bold py-3 px-8 rounded-lg text-lg" data-key="activities_game_button">START GAME</button>
+            </div>
+        </section>
+
+        <section id="opportunities" class="py-20">
+             <div class="text-center mb-12">
+                <div class="mt-4">
+                     <button id="show-admin-login-btn" class="btn-secondary font-semibold py-2 px-4 rounded-lg hidden">Admin Login</button>
+                     <button id="show-add-opportunity-btn" class="btn-primary font-semibold py-2 px-4 rounded-lg hidden">Add Opportunity</button>
+                </div>
+            </div>
+
+            <div class="space-y-16">
+                <div>
+                    <div id="volunteer-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                    <div class="text-center mt-8">
+                        <button data-category="volunteer" class="see-more-btn btn-secondary font-semibold py-2 px-6 rounded-lg hidden" data-key="see_more">See More</button>
+                    </div>
+                 </div>
+
+                <div>
+                    <div id="job-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                    <div class="text-center mt-8">
+                        <button data-category="job" class="see-more-btn btn-secondary font-semibold py-2 px-6 rounded-lg hidden" data-key="see_more">See More</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div id="event-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                    <div class="text-center mt-8">
+                        <button data-category="event" class="see-more-btn btn-secondary font-semibold py-2 px-6 rounded-lg hidden" data-key="see_more">See More</button>
+                    </div>
+                 </div>
+            </div>
+        </section>
+        
+        <section id="admin-panel" class="py-10 hidden">
+             <h2 class="text-3xl font-bold text-center mb-6" data-key="admin_panel_title">Admin Panel</h2>
+             <div class="max-w-4xl mx-auto bg-secondary p-6 rounded-lg shadow-lg space-y-8">
+                 <div>
+                    <h3 class="text-xl font-bold text-brand-yellow mb-4" data-key="admin_panel_subtitle">Player Data</h3>
+                    <p class="text-secondary mb-4" data-key="admin_panel_desc">View and export data for all players who have completed the game.</p>
+                    <div id="player-log-display" class="table-container mb-4">
+                        <table id="player-log-table">
+                            <thead>
+                                <tr>
+                                    <th data-key="log_header_name">Name</th>
+                                    <th data-key="log_header_datetime">Date & Time</th>
+                                    <th data-key="log_header_feedback1">Feedback: Helpful?</th>
+                                    <th data-key="log_header_feedback2">Feedback: Improvement?</th>
+                                    <th data-key="log_header_actions">Actions</th> 
+                                </tr>
+                            </thead>
+                            <tbody id="player-log-table-body"></tbody>
+                        </table>
+                    </div>
+                    <button id="export-csv-btn" class="w-full btn-primary font-bold py-2 px-4 rounded-lg" data-key="admin_panel_button">Export Player Log (CSV)</button>
+                 </div>
+
+                <div>
+                    <h3 class="text-xl font-bold text-brand-yellow mb-4" data-key="admin_panel_donation_title">Donation Data</h3>
+                    <p class="text-secondary mb-4" data-key="admin_panel_donation_desc">View all submitted donations.</p>
+                    <div id="donation-log-display" class="table-container mb-4">
+                        <table id="donation-log-table" class="w-full">
+                            <thead>
+                                <tr>
+                                    <th data-key="log_header_name">Name</th>
+                                    <th data-key="log_header_contact">Contact (Email/Telegram)</th>
+                                    <th data-key="log_header_amount">Amount</th>
+                                    <th data-key="log_header_datetime">Date & Time</th>
+                                    <th data-key="log_header_actions">Actions</th> 
+                                </tr>
+                            </thead>
+                             <tbody id="donation-log-table-body"></tbody>
+                        </table>
+                    </div>
+                 </div>
+                 <div>
+                    <button id="admin-logout-btn" class="w-full btn-secondary font-bold py-2 px-4 rounded-lg" data-key="admin_panel_logout_button">Logout</button>
+                 </div>
+             </div>
+        </section>
+
+        <!-- Contact Us Section --><section id="contact" class="py-20">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold" data-key="contact_title">Get In Touch</h2>
+                <p class="mt-4 mb-8 max-w-2xl mx-auto text-secondary" data-key="contact_subtitle">
+                    Have questions or want to collaborate? Follow us on our social media platforms or send us an email. We'd love to hear from you!
+                </p>
+                <div class="flex justify-center space-x-8 mb-8">
+        <a href="https://www.tiktok.com/@wemadeforyouth?_r=1&_t=ZS-91C7gmTPr50"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="transform hover:scale-125 transition-transform text-primary hover:text-brand-yellow">
+            <svg role="img" width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <title>TikTok</title>
+            <path fill="currentColor"
+                d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.03-4.83-.95-6.43-2.98-1.55-1.99-2.3-4.51-2.2-7.13.1-2.58 1.1-5.1 2.89-6.93 1.99-2.03 4.78-3.17 7.62-3.22.01 2.5.01 4.99.01 7.49-.64-.28-1.28-.56-1.92-.85-1.05-.48-2.14-.82-3.23-1.11v-4.2c2.16.35 4.33.87 6.32 1.62.03-2.05.03-4.1.02-6.15Z"/>
+            </svg>
+        </a>
+
+  <a href="https://www.facebook.com/share/1Bin7GMzqN/?mibextid=wwXIfr"
+     target="_blank"
+     rel="noopener noreferrer"
+     class="transform hover:scale-125 transition-transform text-primary hover:text-brand-yellow">
+    <svg role="img" width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <title>Facebook</title>
+      <path fill="currentColor"
+        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+    </svg>
+  </a>
+</div>
+
+                 <a href="https://t.me/@TYurinne16" target="_blank" class="font-semibold text-brand-yellow hover:underline">contact@4youth.org</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-secondary dark:bg-brand-darkblue light:bg-gray-100 mt-20">
+        <div class="container mx-auto px-6 py-6 text-center text-secondary">
+            <p id="footer-copyright-text" data-key="footer_copyright">&copy; 2025 4Youth. All Rights Reserved.</p>
+        </div>
+    </footer>
+    
+    <div id="game-interface-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-2xl w-full max-w-2xl m-4 text-center">
+            <p id="game-countdown-text" class="text-8xl font-extrabold text-brand-yellow mb-4"></p>
+            <div id="game-area" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <div>Player: <span id="game-player-name" class="font-bold text-brand-yellow"></span></div>
+                    <div>Score: <span id="game-score" class="font-bold text-brand-yellow">0</span></div>
+                </div>
+                <div class="relative a7-card-container perspective-1000">
+                    <div id="game-card" class="card w-full h-full relative">
+                        <div class="card-face card-front absolute w-full h-full bg-accent rounded-lg flex items-center justify-center border-4 border-accent">
+                            <img src="img/headcard.png" alt="Card Back" class="w-full h-full object-contain rounded-md">
+                        </div>
+                        <div class="card-face card-back absolute w-full h-full bg-brand-light text-brand-blue rounded-lg flex items-center justify-center p-1 border-4 border-accent">
+                            <img id="card-image" alt="Question Card" class="w-full h-full object-contain rounded-md">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <p class="text-5xl font-bold text-brand-yellow mb-6" id="game-timer">60</p>
+                    <div class="flex justify-center space-x-4">
+                         <button id="skip-card-btn" class="btn-secondary font-bold py-3 px-8 rounded-lg">SKIP (-1 Point)</button>
+                         <button id="correct-answer-btn" class="btn-primary font-bold py-3 px-8 rounded-lg">Correct (+1 Point)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-setup-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg m-4 relative">
+            <button class="close-modal-btn absolute top-2 right-2 text-primary text-3xl">&times;</button>
+            <h2 class="text-2xl font-bold text-brand-yellow mb-4" data-key="game_setup_title">Game Setup</h2>
+            <div id="player-id-display" class="hidden my-4 p-3 bg-accent rounded-md text-center">
+                <p data-key="your_player_id">Your Player ID is:</p>
+                <p id="generated-player-id" class="text-2xl font-bold text-brand-yellow tracking-widest"></p>
+             </div>
+            <div class="space-y-4">
+                <input id="player-name-input" type="text" placeholder="Enter Your Name" data-key-placeholder="game_setup_placeholder_name" class="w-full p-3 rounded-md bg-accent border-2 border-accent text-primary placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-yellow">
+                <div id="partner-section">
+                    <p class="text-sm" data-key="game_setup_partners_desc">Enter your partner's Player ID to join their session.</p>
+                    <input id="partner-id-input" type="text" placeholder="Enter Partner's ID" data-key-placeholder="game_setup_placeholder_partner_id" class="w-full p-3 mt-2 rounded-md bg-accent border-2 border-accent text-primary placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-yellow">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-4">
+                <button id="join-session-btn" class="btn-secondary font-bold py-2 px-6 rounded-lg" data-key="game_setup_join_button">Join Session</button>
+                <button id="lets-play-btn" class="btn-primary font-bold py-2 px-6 rounded-lg" data-key="game_setup_play_button">Start New Game</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="game-rules-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg m-4">
+            <h2 class="text-2xl font-bold text-brand-yellow mb-4">Game Rules</h2>
+            <ol class="list-decimal list-inside space-y-3">
+                <li>Decide who goes first among your group.</li>
+                <li>On your turn, the card will be revealed. Read the interview question aloud.</li>
+                <li>You have <span class="font-bold text-brand-yellow">1 minute</span> to answer.</li>
+                <li>If you answer clearly and confidently, your partners can award you a point. (Honor system!)</li>
+                <li>If you cannot answer, you can <span class="font-bold">SKIP</span>, but it will cost <span class="font-bold text-red-400">-1 point</span>.</li>
+                <li>The game consists of 5 random questions. Good luck!</li>
+            </ol>
+            <div class="mt-6 flex justify-end">
+                <button id="next-to-game-btn" class="btn-primary font-bold py-2 px-6 rounded-lg">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="completion-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden p-4">
+        <div class="relative w-full max-w-2xl">
+            <div id="completion-paper" class="bg-white p-12 rounded-lg shadow-2xl border-8 border-yellow-400 text-gray-800">
+                <h2 class="text-center text-4xl font-serif text-blue-900 mb-4">Statement of Completion</h2>
+                <p class="text-center text-lg mb-8">This is to certify that</p>
+                <p id="completion-name" class="text-center text-5xl font-bold text-blue-900 underline decoration-yellow-400 mb-8">Player Name</p>
+                <p class="text-center text-lg mb-10">
+                    has successfully completed the 4Youth Interview Preparation Challenge, demonstrating commendable effort and skill, achieving a score of <span id="completion-score" class="font-bold">0</span> points.
+                </p>
+                <div class="flex justify-between items-end mt-16">
+                     <div>
+                        <p class="text-lg font-semibold">Date</p>
+                        <p id="completion-date" class="border-t-2 border-gray-400 pt-1">01 Jan 2025</p>
+                     </div>
+                     <div>
+                        <img src="https://i.postimg.cc/mrBQZkJ7/sing.jpg" alt="Signature" class="h-20">
+                        <p class="border-t-2 border-gray-400 pt-1 font-semibold">4Youth Project Lead</p>
+                     </div>
+                </div>
+            </div>
+            <div class="flex space-x-4 mt-4">
+                <button id="close-completion-btn" class="flex-1 btn-secondary font-bold py-3 px-8 rounded-lg" data-key="close_button">Close & Give Feedback</button>
+                <button id="download-certificate-btn" class="flex-1 btn-primary font-bold py-3 px-8 rounded-lg" data-key="download_pdf_button">Download as PDF</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="feedback-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden p-4">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg m-4 relative">
+            <button class="close-modal-btn absolute top-2 right-2 text-primary text-3xl">&times;</button>
+            <h2 class="text-2xl font-bold text-brand-yellow mb-4" data-key="feedback_title">Share Your Feedback</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="feedback-q1" class="block mb-1 font-semibold" data-key="feedback_q1_label">1. Did this card game help you or is it important?</label>
+                    <textarea id="feedback-q1" rows="3" class="w-full p-2 rounded form-textarea"></textarea>
+                </div>
+                <div>
+                    <label for="feedback-q2" class="block mb-1 font-semibold" data-key="feedback_q2_label">2. What do you think needs improvement in this card game?</label>
+                    <textarea id="feedback-q2" rows="3" class="w-full p-2 rounded form-textarea"></textarea>
+                </div>
+                <p class="text-secondary" data-key="feedback_thanks">Thank you for playing!</p>
+                <p class="text-secondary" data-key="feedback_more_info">Follow our page <a href="#" class="text-brand-yellow underline" target="_blank" data-key="feedback_page_link">4Youth</a> for more information.</p>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="submit-feedback-btn" class="btn-primary font-bold py-2 px-6 rounded-lg" data-key="feedback_submit_button">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="donate-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden p-4">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg m-4 relative">
+            <button class="close-modal-btn absolute top-2 right-2 text-primary text-3xl">&times;</button>
+            <h2 class="text-2xl font-bold text-brand-yellow mb-4" data-key="donate_title">Support 4Youth</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="text-center">
+                    <p class="mb-4" data-key="donate_qr_label">Scan to Donate:</p>
+                    <img src="https://i.postimg.cc/8Cry278B/qr.jpg" alt="Donate QR Code" class="rounded-lg mx-auto shadow-lg">
+
+                    <!-- <img src="https://placehold.co/150x150/FFFFFF/000000?text=QR" alt="Donate QR Code" class="rounded-lg mx-auto shadow-lg"> -->
+                </div>
+                <div class="space-y-4">
+                    <p data-key="donate_form_label">Or fill out your info:</p>
+                     <input id="donate-name" type="text" placeholder="Full Name" data-key-placeholder="donate_placeholder_name" class="w-full p-3 rounded-md form-input">
+                     <input id="donate-contact" type="text" placeholder="Email or Telegram" data-key-placeholder="donate_placeholder_contact" class="w-full p-3 rounded-md form-input">
+                     <input id="donate-amount" type="number" placeholder="Amount ($)" data-key-placeholder="donate_placeholder_amount" class="w-full p-3 rounded-md form-input">
+                     <button id="submit-donation-btn" class="w-full btn-primary font-bold py-2 px-6 rounded-lg" data-key="donate_submit_button">Submit Donation Info</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="donation-certificate-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden p-4">
+        <div class="relative w-full max-w-2xl">
+             <div id="donation-paper" class="bg-white p-12 rounded-lg shadow-2xl border-8 border-yellow-400 text-gray-800">
+                <h2 class="text-center text-4xl font-serif text-blue-900 mb-4" data-key="donation_cert_title">Certificate of Appreciation</h2>
+                <p class="text-center text-lg mb-8" data-key="donation_cert_subtitle">This certificate is proudly presented to</p>
+                <p id="donation-cert-name" class="text-center text-5xl font-bold text-blue-900 underline decoration-yellow-400 mb-8">Donor Name</p>
+                <p class="text-center text-lg mb-10" data-key="donation_cert_body">
+                    In grateful recognition of your generous donation of
+                    <span id="donation-cert-amount-display" class="font-bold text-lg">$0</span> dollars. Your support helps us empower young individuals.
+                </p>
+                <div class="flex justify-between items-end mt-16">
+                     <div>
+                        <p class="text-lg font-semibold">Date</p>
+                        <p id="donation-cert-date" class="border-t-2 border-gray-400 pt-1">01 Jan 2025</p>
+                     </div>
+                     <div>
+                        <img src="https://i.postimg.cc/mrBQZkJ7/sing.jpg" alt="Signature" class="h-20">
+                        <p class="border-t-2 border-gray-400 pt-1 font-semibold">4Youth Project Lead</p>
+                     </div>
+                </div>
+            </div>
+            <button class="close-modal-btn absolute top-0 right-0 -mt-4 -mr-4 text-white bg-brand-blue rounded-full p-2 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <button id="download-donation-certificate-btn" class="w-full btn-primary font-bold py-3 px-8 rounded-lg mt-4" data-key="download_pdf_button">Download as PDF</button>
+        </div>
+    </div>
+
+    <div id="admin-login-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm m-4 relative">
+            <button class="close-modal-btn absolute top-2 right-2 text-primary text-3xl">&times;</button>
+            <h2 class="text-2xl font-bold text-brand-yellow mb-4">Admin Login</h2>
+            <input id="admin-user" type="text" placeholder="Username" class="w-full p-3 mb-4 rounded form-input">
+            <input id="admin-pass" type="password" placeholder="Password" class="w-full p-3 mb-4 rounded form-input">
+            <button id="admin-login-btn" class="w-full btn-primary font-bold py-2 rounded-lg">Login</button>
+        </div>
+    </div>
+
+    <div id="add-opportunity-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden overflow-y-auto p-4">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg m-4 relative">
+            <button class="close-modal-btn absolute top-2 right-2 text-primary text-3xl">&times;</button>
+            <h2 id="opp-modal-title" class="text-2xl font-bold text-brand-yellow mb-4" data-key="opp_modal_add_title">Add New Opportunity</h2>
+            <input type="hidden" id="opp-edit-id">
+            <div class="space-y-4">
+                <select id="opp-category" class="w-full p-2 rounded form-select">
+                    <option value="volunteer">Volunteer</option>
+                    <option value="job">Job</option>
+                    <option value="event">Event</option>
+                </select>
+                <input id="opp-title" type="text" placeholder="Job Title" class="w-full p-2 rounded form-input">
+                <input id="opp-company" type="text" placeholder="Company Name & Location" class="w-full p-2 rounded form-input">
+                <textarea id="opp-desc" placeholder="Description" class="w-full p-2 rounded form-input" rows="3"></textarea>
+                <input id="opp-deadline" type="text" placeholder="Deadline / Date / Commitment" class="w-full p-2 rounded form-input">
+                <input id="opp-link" type="text" placeholder="Application Link" class="w-full p-2 rounded form-input">
+                <label class="block text-brand-yellow font-semibold">Image URL</label>
+                <input id="opp-image-url" type="text" placeholder="https://example.com/image.png" class="w-full p-2 rounded form-input">
+                <button id="add-opportunity-submit-btn" class="w-full btn-primary font-bold py-2 rounded-lg" data-key="opp_modal_add_button">Add Opportunity</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="gallery-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden p-4">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-2xl w-full max-w-4xl m-4 relative">
+             <button class="close-modal-btn absolute top-2 right-2 text-primary text-3xl">&times;</button>
+             <h2 class="text-2xl font-bold text-brand-yellow mb-4" data-key="gallery_modal_title">Our Gallery</h2>
+             <div id="gallery-modal-content" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[80vh] overflow-y-auto"></div>
+        </div>
+    </div>
+    
+    <div id="workshop-gallery-modal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden p-4">
+        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-2xl w-full max-w-4xl m-4 relative">
+             <button class="close-modal-btn absolute top-2 right-2 text-primary text-3xl">&times;</button>
+             <h2 class="text-2xl font-bold text-brand-yellow mb-4" data-key="workshop_modal_title">Our Workshops</h2>
+             <div id="workshop-gallery-modal-content" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[80vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const translations = {
+             en: {
+                nav_home: "Home", nav_about: "About Us", nav_activities: "Our Activities", nav_cv: "Template CV", nav_opportunities: "Opportunities", nav_contact: "Contact Us", nav_donate: "Donate",
+                nav_home_mobile: "Home", nav_about_mobile: "About Us", nav_activities_mobile: "Our Activities", nav_cv_mobile: "Template CV", nav_opportunities_mobile: "Opportunities", nav_contact_mobile: "Contact Us", nav_donate_mobile: "Donate",
+                home_title_main: "Welcome to <span class='text-brand-yellow'>4Youth!</span>",
+                home_subtitle_main: "Your interactive platform for engaging interview preparation through our unique card game.",
+                home_learn_more: "Learn More About Us",
+                home_get_started: "Get Started",
+                about_title: "About Us",
+                about_subtitle: "Our Mission",
+                about_description: "4Youth is dedicated to empowering young individuals by providing innovative tools and resources for career development. We believe that effective interview preparation is key to unlocking potential and building confidence. Our card game is designed to make learning fun, interactive, and impactful.",
+                about_team_title: "Meet the Team",
+                role_pm: "Project Manager",
+                role_member: "Team Member",
+                activities_title: "Our Activities",
+                activities_box1_title: "Photo Gallery", activities_box1_desc: "See our team and community in action.", activities_box1_button: "View All",
+                activities_box3_title: "Workshops", activities_box3_desc: "Join our workshops on career development.", activities_box3_button: "View All",
+                activities_game_title: "Interview Card Game",
+                activities_game_desc: "Ready to test your skills? Start the game, answer questions against the clock, and get feedback.",
+                activities_game_button: "START GAME",
+                gallery_modal_title: "Our Gallery",
+                workshop_modal_title: "Our Workshops",
+                opportunities_title: "Opportunities",
+                opportunities_subtitle: "Find volunteer, job, and event opportunities.",
+                opp_volunteer_title: "Volunteer",
+                opp_job_title: "Jobs",
+                opp_event_title: "Events",
+                see_more: "See More",
+                see_less: "See Less",
+                contact_title: "Get In Touch",
+                contact_subtitle: "Have questions or want to collaborate? Follow us on our social media platforms or send us an email. We'd love to hear from you!",
+                banner_players: "players have joined the challenge!",
+                footer_copyright: "&copy; {YEAR} 4Youth. All Rights Reserved.",
+                game_setup_title: "Game Setup",
+                game_setup_placeholder_name: "Enter Your Name",
+                your_player_id: "Your Player ID is:",
+                game_setup_partners_desc: "Enter your partner's Player ID to join their session.",
+                game_setup_placeholder_partner_id: "Enter Partner's ID",
+                game_setup_join_button: "Join Session",
+                game_setup_play_button: "Start New Game",
+                admin_panel_title: "Admin Panel",
+                admin_panel_subtitle: "Player Data",
+                admin_panel_desc: "View and export data for all players who have completed the game.",
+                admin_panel_button: "Export Player Log (CSV)",
+                admin_panel_logout_button: "Logout",
+                admin_panel_photo_title: "Update Team Photo",
+                admin_panel_photo_desc: "To edit, update the `src` attribute for `#about-team-photo` in the HTML.",
+                admin_panel_photo_button: "Update Photo",
+                admin_panel_member_photos_title: "Update Member Photos",
+                admin_panel_member_photos_desc: "To edit, log in and update the `src` attributes for `#pm1-photo`, `#m1-photo`, etc., in the HTML.",
+                admin_panel_gallery_title: "Manage Galleries",
+                admin_gallery_main: "Main Gallery ('Our Activities')",
+                admin_gallery_workshop: "Workshop Gallery",
+                add_photo_button: "Add",
+                admin_panel_donation_title: "Donation Data",
+                admin_panel_donation_desc: "View all submitted donations.",
+                download_pdf_button: "Download as PDF",
+                feedback_title: "Share Your Feedback",
+                feedback_q1_label: "1. Did this card game help you or is it important?",
+                feedback_q2_label: "2. What do you think needs improvement in this card game?",
+                feedback_thanks: "Thank you for playing!",
+                feedback_more_info: "Follow our page <a href='#' class='text-brand-yellow underline' target='_blank' data-key='feedback_page_link'>4Youth</a> for more information.",
+                feedback_page_link: "4Youth",
+                feedback_submit_button: "Submit Feedback",
+                close_button: "Close & Give Feedback", 
+                log_header_name: "Name",
+                log_header_datetime: "Date & Time",
+                log_header_feedback1: "Feedback: Helpful?",
+                log_header_feedback2: "Feedback: Improvement?",
+                log_header_actions: "Actions",
+                 log_delete_button: "Delete",
+                 opp_edit_button: "Edit",
+                 opp_delete_button: "Delete",
+                 opp_modal_add_title: "Add New Opportunity",
+                 opp_modal_edit_title: "Edit Opportunity",
+                opp_modal_add_button: "Add Opportunity",
+                 opp_modal_update_button: "Update Opportunity",
+                 alert_feedback_required: "Please fill out both feedback questions before submitting.", 
+                 alert_confirm_delete_player: "Are you sure you want to delete this player log?",
+                 alert_confirm_delete_donation: "Are you sure you want to delete this donation log?",
+                 alert_confirm_delete_opportunity: "Are you sure you want to delete this opportunity?",
+                 donate_title: "Support 4Youth",
+                 donate_qr_label: "Scan to Donate:",
+                 donate_form_label: "Or fill out your info:",
+                 donate_placeholder_name: "Full Name",
+                 donate_placeholder_contact: "Email or Telegram",
+                 donate_placeholder_amount: "Amount ($)",
+                 donate_submit_button: "Submit Donation Info",
+                 donate_thanks: "Thank you for your donation!",
+                 donate_thanks_desc: "Your support helps us continue our mission.",
+                 donation_cert_title: "Certificate of Appreciation",
+                 donation_cert_subtitle: "This certificate is proudly presented to",
+                 donation_cert_body: "In grateful recognition of your generous donation of",
+                 log_header_contact: "Contact (Email/Telegram)",
+                 log_header_amount: "Amount",
+                 donation_cert_download_button: "View Certificate", 
+            },
+            km: {
+                 nav_home: "ទំព័រដើម", 
+                nav_about: "អំពី​ពួក​យើង", nav_activities: "សកម្មភាពរបស់យើង", nav_cv: "គំរូ CV", nav_opportunities: "ឱកាស", nav_contact: "ទំនាក់ទំនង", nav_donate: "បរិច្ចាគ",
+                nav_home_mobile: "ទំព័រដើម", nav_about_mobile: "អំពី​ពួក​យើង", nav_activities_mobile: "សកម្មភាពរបស់យើង", nav_cv_mobile: "គំរូ CV", nav_opportunities_mobile: "ឱកាស", nav_contact_mobile: "ទំនាក់ទំនង", nav_donate_mobile: "បរិច្ចាគ",
+                home_title_main: "សូមស្វាគមន៍មកកាន់ <span class='text-brand-yellow'>4Youth!</span>",
+                home_subtitle_main: "វេទិកាអន្តរកម្មរបស់អ្នកសម្រាប់ការរៀបចំសម្ភាសន៍តាមរយៈហ្គេមបៀរពិសេសរបស់យើង។",
+                home_learn_more: "ស្វែងយល់បន្ថែមអំពីពួកយើង",
+                home_get_started: "ចាប់ផ្តើម",
+                about_title: "អំពី​ពួក​យើង",
+                about_subtitle: "បេសកកម្មរបស់យើង",
+                about_description: "4Youth ឧទ្ទិសដល់ការពង្រឹងសមត្ថភាពយុវជនតាមរយៈការផ្តល់ឧបករណ៍ និងធនធានច្នៃប្រឌិតសម្រាប់ការអភិវឌ្ឍន៍អាជីព។ យើងជឿជាក់ថាការរៀបចំសម្ភាសន៍ប្រកបដោយប្រសិទ្ធភាពគឺជាគន្លឹះក្នុងការដោះសោសក្តានុពល និងកសាងទំនុកចិត្ត។ ហ្គេមបៀររបស់យើងត្រូវបានរចនាឡើងដើម្បីធ្វើឱ្យការរៀនសូត្រមានភាពសប្បាយរីករាយ អន្តរកម្ម និងមានឥទ្ធិពល។",
+                about_team_title: "ជួបជាមួយក្រុមការងារ",
+                role_pm: "អ្នកគ្រប់គ្រងគម្រោង",
+                role_member: "សមាជិកក្រុម",
+                activities_title: "សកម្មភាពរបស់យើង",
+                activities_box1_title: "វិចិត្រសាលរូបភាព", activities_box1_desc: "មើលក្រុម និងសហគមន៍របស់យើងក្នុងសកម្មភាព។", activities_box1_button: "មើល​ទាំងអស់",
+                activities_box3_title: "សិក្ខាសាលា", activities_box3_desc: "ចូលរួមសិក្ខាសាលារបស់យើងស្តីពីការអភិវឌ្ឍន៍អាជីព។", activities_box3_button: "មើល​ទាំងអស់",
+                activities_game_title: "ហ្គេមបៀរសម្ភាសន៍",
+                activities_game_desc: "ត្រៀម​ខ្លួន​ដើម្បី​សាកល្បង​ជំនាញ​របស់​អ្នក​ហើយ​ឬ​នៅ? ចាប់ផ្តើមហ្គេម ឆ្លើយសំណួរប្រឆាំងនឹងនាឡិកា និងទទួលបានមតិកែលម្អ។",
+                activities_game_button: "ចាប់ផ្តើមហ្គេម",
+                gallery_modal_title: "វិចិត្រសាលរបស់យើង",
+                workshop_modal_title: "សិក្ខាសាលារបស់យើង",
+                opportunities_title: "ឱកាស",
+                opportunities_subtitle: "ស្វែងរកឱកាសស្ម័គ្រចិត្ត ការងារ និងព្រឹត្តិការណ៍ផ្សេងៗ។",
+                opp_volunteer_title: "ការងារស្ម័គ្រចិត្ត",
+                opp_job_title: "ការងារ",
+                opp_event_title: "ព្រឹត្តិការណ៍",
+                see_more: "មើល​បន្ថែម",
+                see_less: "មើលតិចជាង",
+                contact_title: "ទំនាក់ទំនងមកពួកយើង",
+                contact_subtitle: "មានសំណួរឬចង់សហការ? តាមដានពួកយើងនៅលើប្រព័ន្ធផ្សព្វផ្សាយសង្គមរបស់យើងឬផ្ញើអ៊ីមែលមកពួកយើង។ យើងចង់ឮពីអ្នក!",
+                banner_players: "អ្នកលេងបានចូលរួមការប្រកួតប្រជែង!",
+                footer_copyright: "&copy; {YEAR} 4Youth រក្សាសិទ្ធិគ្រប់យ៉ាង។",
+                game_setup_title: "រៀបចំ​ហ្គេម",
+                game_setup_placeholder_name: "បញ្ចូល​ឈ្មោះ​របស់​អ្នក",
+                your_player_id: "លេខកូដអ្នកលេងរបស់អ្នកគឺ៖",
+                game_setup_partners_desc: "បញ្ចូលលេខកូដអ្នកលេងរបស់ដៃគូអ្នកដើម្បីចូលរួមសម័យរបស់ពួកគេ។",
+                game_setup_placeholder_partner_id: "បញ្ចូលលេខកូដដៃគូ",
+                game_setup_join_button: "ចូលរួមសម័យ",
+                game_setup_play_button: "ចាប់ផ្តើមហ្គេមថ្មី",
+                admin_panel_title: "ផ្ទាំងគ្រប់គ្រង",
+                admin_panel_subtitle: "ទិន្នន័យអ្នកលេង",
+                admin_panel_desc: "ទាញយកឯកសារ CSV នៃអ្នកលេងទាំងអស់ដែលបានបញ្ចប់ហ្គេម។",
+                admin_panel_button: "នាំចេញកំណត់ត្រាអ្នកលេង (CSV)",
+                admin_panel_logout_button: "ចាកចេញ",
+                admin_panel_photo_title: "ធ្វើបច្ចុប្បន្នភាពរូបថតក្រុម",
+                admin_panel_photo_desc: "ដើម្បីកែសម្រួល សូមធ្វើបច្ចុប្បន្នភាព `src` សម្រាប់ `#about-team-photo` នៅក្នុង HTML។",
+                admin_panel_photo_button: "Update Photo",
+                admin_panel_member_photos_title: "ធ្វើបច្ចុប្បន្នភាពរូបថតសមាជិក",
+                admin_panel_member_photos_desc: "ដើម្បីកែសម្រួល សូមចូលជា Admin រួចចុចលើរូបថត ឬអត្ថបទសមាជិកនៅក្នុងផ្នែក 'អំពីពួកយើង'។",
+                admin_panel_gallery_title: "គ្រប់គ្រងវិចិត្រសាល",
+                admin_gallery_main: "វិចិត្រសាលធំ ('សកម្មភាពរបស់យើង')",
+                admin_gallery_workshop: "វិចិត្រសាលសិក្ខាសាលា",
+                add_photo_button: "បន្ថែម",
+                admin_panel_donation_title: "ទិន្នន័យអំណោយ",
+                admin_panel_donation_desc: "មើលអំណោយដែលបានដាក់ស្នើទាំងអស់។",
+                download_pdf_button: "ទាញយកជា PDF",
+                feedback_title: "ចែករំលែកមតិកែលម្អរបស់អ្នក",
+                feedback_q1_label: "១. តើហ្គេមបៀរនេះបានជួយអ្នក ឬវាសំខាន់ដែរឬទេ?",
+                feedback_q2_label: "២. តើអ្នកគិតថាអ្វីខ្លះដែលត្រូវកែលម្អនៅក្នុងហ្គេមបៀរនេះ?",
+                feedback_thanks: "សូមអរគុណសម្រាប់ការលេង!",
+                feedback_more_info: "តាមដានទំព័ររបស់យើង <a href='#' class='text-brand-yellow underline' target='_blank' data-key='feedback_page_link'>4Youth</a> សម្រាប់ព័ត៌មានបន្ថែម។",
+                feedback_page_link: "4Youth",
+                feedback_submit_button: "ដាក់ស្នើមតិកែលម្អ",
+                close_button: "បិទ & ផ្ដល់មតិ", 
+                log_header_name: "ឈ្មោះ",
+                log_header_datetime: "កាលបរិច្ឆេទ & ពេលវេលា",
+                log_header_feedback1: "មតិ៖ មានប្រយោជន៍?",
+                log_header_feedback2: "មតិ៖ ការកែលម្អ?",
+                 log_header_actions: "សកម្មភាព",
+                log_delete_button: "លុប",
+                 opp_edit_button: "កែសម្រួល",
+                 opp_delete_button: "លុប",
+                 opp_modal_add_title: "បន្ថែមឱកាសថ្មី",
+                 opp_modal_edit_title: "កែសម្រួលឱកាស",
+                 opp_modal_add_button: "បន្ថែមឱកាស",
+                opp_modal_update_button: "ធ្វើបច្ចុប្បន្នភាពឱកាស",
+                 alert_feedback_required: "សូមបំពេញសំណួរមតិកែលម្អទាំងពីមុនពេលដាក់ស្នើ។",
+                 alert_confirm_delete_player: "តើអ្នកប្រាកដឬទេថាចង់លុបកំណត់ត្រាអ្នកលេងនេះ?",
+                 alert_confirm_delete_donation: "តើអ្នកប្រាកដឬទេថាចង់លុបកំណត់ត្រាអំណោយនេះ?",
+                 alert_confirm_delete_opportunity: "តើអ្នកប្រាកដឬទេថាចង់លុបឱកាសនេះ?",
+                 donate_title: "គាំទ្រ 4Youth",
+                 donate_qr_label: "ស្កេនដើម្បីបរិច្ចាគ៖",
+                 donate_form_label: "ឬបំពេញព័ត៌មានរបស់អ្នក៖",
+                 donate_placeholder_name: "ឈ្មោះ​ពេញ",
+                 donate_placeholder_contact: "អ៊ីមែល ឬ តេឡេក្រាម",
+                 donate_placeholder_amount: "ចំនួនទឹកប្រាក់ ($)",
+                donate_submit_button: "ដាក់ស្នើព័ត៌មានអំណោយ",
+                 donate_thanks: "អរគុណសម្រាប់ការបរិច្ចាគរបស់អ្នក!",
+                 donate_thanks_desc: "ការគាំទ្ររបស់អ្នកជួយយើងបន្តបេសកកម្មរបស់យើង។",
+                 donation_cert_title: "វិញ្ញាបនបត្រនៃការកោតសរសើរ",
+                 donation_cert_subtitle: "វិញ្ញាបនបត្រនេះត្រូវបានប្រគល់ជូនដោយមោទនភាពដល់",
+                donation_cert_body: "ជាការទទួលស្គាល់ដោយអំណរគុណចំពោះអំណោយដ៏សប្បុរសរបស់អ្នកចំនួន",
+                 log_header_contact: "ទំនាក់ទំនង (អ៊ីមែល/តេឡេក្រាម)",
+                 log_header_amount: "ចំនួនទឹកប្រាក់",
+                 donation_cert_download_button: "មើលវិញ្ញាបនបត្រ",
+            }
+        };
+
+        // --- Theme and Language Setup ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+        const langEnBtn = document.getElementById('lang-en');
+        const langKmBtn = document.getElementById('lang-km');
+        const footerCopyright = document.getElementById('footer-copyright-text');
+        footerCopyright.innerHTML = `&copy; ${new Date().getFullYear()} 4Youth. All Rights Reserved.`;
+
+
+        function updateThemeIcons(theme) {
+            if (theme === 'light') {
+                darkIcon.classList.remove('hidden');
+                lightIcon.classList.add('hidden');
+            } else {
+                darkIcon.classList.add('hidden');
+                lightIcon.classList.remove('hidden');
+            }
+        }
+        
+        function setLanguage(lang) {
+            document.body.classList.toggle('km', lang === 'km');
+            langEnBtn.disabled = (lang === 'en');
+            langKmBtn.disabled = (lang === 'km');
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (translations[lang] && translations[lang][key]) {
+                    let text = translations[lang][key];
+                    if (key === 'footer_copyright') {
+                        text = text.replace('{YEAR}', new Date().getFullYear());
+                    }
+                    if (key !== 'feedback_more_info' && !el.hasAttribute('data-no-translate')) { 
+                        el.innerHTML = text;
+                    } else if (key === 'feedback_more_info') {
+                         const linkElement = el.querySelector('a');
+                         const linkText = translations[lang]['feedback_page_link'] || '4Youth';
+                         if(linkElement) linkElement.textContent = linkText;
+                         el.childNodes[0].nodeValue = text.substring(0, text.indexOf('<a')); 
+                         el.childNodes[2].nodeValue = text.substring(text.indexOf('</a>') + 4);
+                    }
+                }
+            });
+            document.querySelectorAll('[data-key-placeholder]').forEach(el => {
+                 const key = el.getAttribute('data-key-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('.see-more-btn').forEach(btn => {
+                if (btn.dataset.state === 'less') {
+                    btn.innerHTML = translations[lang]['see_less'];
+                } else {
+                    btn.innerHTML = translations[lang]['see_more'];
+                }
+            });
+            ['log_header_name', 'log_header_datetime', 'log_header_feedback1', 'log_header_feedback2', 'log_header_actions', 'log_header_contact', 'log_header_amount'].forEach(key => {
+                const th = document.querySelector(`#player-log-table th[data-key="${key}"], #donation-log-table th[data-key="${key}"]`);
+                if (th) th.textContent = translations[lang][key];
+            });
+            document.querySelectorAll('.delete-log-btn').forEach(btn => {
+                 btn.textContent = translations[lang]['log_delete_button'];
+             });
+            document.querySelectorAll('.delete-opp-btn').forEach(btn => {
+                 btn.textContent = translations[lang]['opp_delete_button'];
+             });
+            document.querySelectorAll('.edit-opp-btn').forEach(btn => {
+                 btn.textContent = translations[lang]['opp_edit_button'];
+             });
+            document.querySelectorAll('.download-donation-btn').forEach(btn => {
+                 btn.textContent = translations[lang]['donation_cert_download_button'];
+             });
+            document.querySelectorAll('.delete-donation-btn').forEach(btn => {
+                 btn.textContent = translations[lang]['log_delete_button'];
+             });
+            localStorage.setItem('language', lang);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('light');
+            const isLight = document.documentElement.classList.contains('light');
+            const newTheme = isLight ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcons(newTheme);
+        });
+        langEnBtn.addEventListener('click', () => setLanguage('en'));
+        langKmBtn.addEventListener('click', () => setLanguage('km'));
+
+        const initialTheme = localStorage.getItem('theme') || 'dark';
+        updateThemeIcons(initialTheme);
+        const initialLang = localStorage.getItem('language') || 'en';
+        
+
+        // --- State Variables ---
+        let playerCount = parseInt(localStorage.getItem('4youthPlayerCount') || '0', 10);
+        let gameTimerInterval;
+        let gameRound = 0;
+        let playerScore = 0;
+        let currentPlayerName = ''; 
+        let currentLogId = null;
+        let currentCardDeck = [];
+        const oppLimit = 3;
+        let currentGalleryImageIndex = 0;
+        let gallerySlideshowInterval;
+        let workshopGalleryImageIndex = 0;
+        let workshopSlideshowInterval;
+        let keySequence = '';
+       const cardImages = [
+  "https://i.postimg.cc/nL339N8j/2.png",
+  "https://i.postimg.cc/0QrcYZx5/3.png",
+  "https://i.postimg.cc/LXhNtvRH/4.png",
+  "https://i.postimg.cc/PqSSv0GL/5.png",
+  "https://i.postimg.cc/LXhNtvRn/6.png",
+  "https://i.postimg.cc/G29qFzr4/7.png",
+  "https://i.postimg.cc/d1D42nv7/8.png",
+  "https://i.postimg.cc/0QrcYZxM/9.png",
+  "https://i.postimg.cc/V65Dq41j/10.png",
+  "https://i.postimg.cc/ZR0V8jZx/11.png",
+  "https://i.postimg.cc/9MzJd1VP/12.png",
+  "https://i.postimg.cc/hjhpLMgr/13.png",
+  "https://i.postimg.cc/qRgjsQ0w/14.png",
+  "https://i.postimg.cc/nzM04TZT/15.png",
+  "https://i.postimg.cc/9MS1JTFG/16.png",
+  "https://i.postimg.cc/rmbgQWFG/17.png",
+  "https://i.postimg.cc/76cXm7YV/18.png",
+  "https://i.postimg.cc/fLF5BXT5/19.png",
+  "https://i.postimg.cc/C1tJmDLc/20.png",
+  "https://i.postimg.cc/k4Zwf8XY/21.png",
+  "https://i.postimg.cc/k4Zwf8X1/22.png",
+  "https://i.postimg.cc/KzVQJLvV/23.png",
+  "https://i.postimg.cc/XJhxQFYb/24.png",
+  "https://i.postimg.cc/7h29c6fc/25.png",
+  "https://i.postimg.cc/D0X6DZ8t/26.png",
+  "https://i.postimg.cc/yxZj5dkM/27.png",
+  "https://i.postimg.cc/VvCgT6J1/28.png",
+  "https://i.postimg.cc/wMm2Pv19/29.png",
+  "https://i.postimg.cc/2yZGJ61j/30.png",
+  "https://i.postimg.cc/GtyKN24h/31.png",
+  "https://i.postimg.cc/QCTmPtFF/32.png",
+  "https://i.postimg.cc/J0kxgnsX/33.png",
+  "https://i.postimg.cc/d3y6X1hd/34.png",
+  "https://i.postimg.cc/ZYBw0fVj/35.png",
+  "https://i.postimg.cc/05MVrtcc/36.png",
+  "https://i.postimg.cc/ry0fzhQf/37.png",
+  "https://i.postimg.cc/NG9dLNpN/38.png",
+  "https://i.postimg.cc/DfJxmCBY/39.png",
+  "https://i.postimg.cc/pVhsy0q4/40.png",
+  "https://i.postimg.cc/T2LthkC4/41.png"
+];
+
+
+        const galleryImages = [
+            'opp/1.1.jpg','opp/1.2.jpg','opp/1.3.JPG','opp/1.4.JPG',
+        ];
+        const workshopImages = [
+            //  'https://placehold.co/400x250/415A77/FFFFFF?text=Workshops',
+            //  'https://placehold.co/400x250/FFC300/0D1B2A?text=Event+2',
+            'opp/2.1.JPG','img/ws1.JPG','opp/2.2.JPG','opp/2.3.JPG','opp/2.4.JPG','opp/2.5.JPG','opp/2.5.JPG',
+        ];
+        
+        // --- DOM Elements ---
+        const playerCountEl = document.getElementById('player-count');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        const modals = document.querySelectorAll('.fixed.inset-0');
+        const closeModalBtns = document.querySelectorAll('.close-modal-btn');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const gameSetupModal = document.getElementById('game-setup-modal');
+        const letsPlayBtn = document.getElementById('lets-play-btn');
+        const gameRulesModal = document.getElementById('game-rules-modal');
+        const nextToGameBtn = document.getElementById('next-to-game-btn');
+        const gameInterfaceModal = document.getElementById('game-interface-modal');
+        const gameCountdownText = document.getElementById('game-countdown-text');
+        const gameArea = document.getElementById('game-area');
+        const gameCard = document.getElementById('game-card');
+        const cardImageEl = document.getElementById('card-image');
+        const gameTimerEl = document.getElementById('game-timer');
+        const skipCardBtn = document.getElementById('skip-card-btn');
+        const correctAnswerBtn = document.getElementById('correct-answer-btn');
+        const gamePlayerNameEl = document.getElementById('game-player-name');
+        const gameScoreEl = document.getElementById('game-score');
+        const completionModal = document.getElementById('completion-modal');
+        const closeCompletionBtn = document.getElementById('close-completion-btn');
+        const downloadCertificateBtn = document.getElementById('download-certificate-btn');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const submitFeedbackBtn = document.getElementById('submit-feedback-btn');
+        const feedbackQ1Input = document.getElementById('feedback-q1');
+        const feedbackQ2Input = document.getElementById('feedback-q2');
+
+
+        const adminLoginModal = document.getElementById('admin-login-modal');
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const adminLogoutBtn = document.getElementById('admin-logout-btn');
+        const addOpportunityModal = document.getElementById('add-opportunity-modal');
+        const addOpportunitySubmitBtn = document.getElementById('add-opportunity-submit-btn');
+        const showAdminLoginBtn = document.getElementById('show-admin-login-btn');
+        const showAddOpportunityBtn = document.getElementById('show-add-opportunity-btn');
+        const adminPanel = document.getElementById('admin-panel');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        const playerLogTableBody = document.querySelector('#player-log-table-body');
+        const donationLogTableBody = document.querySelector('#donation-log-table-body');
+        const seeMoreBtns = document.querySelectorAll('.see-more-btn');
+        const openGalleryBtn = document.getElementById('open-gallery-btn');
+        const galleryModal = document.getElementById('gallery-modal');
+        const galleryModalContent = document.getElementById('gallery-modal-content');
+        const galleryBoxSlideshow = document.getElementById('gallery-box-slideshow');
+        
+        const openWorkshopGalleryBtn = document.getElementById('open-workshop-gallery-btn');
+        const workshopGalleryModal = document.getElementById('workshop-gallery-modal');
+        const workshopGalleryModalContent = document.getElementById('workshop-gallery-modal-content');
+        const workshopBoxSlideshow = document.getElementById('workshop-box-slideshow');
+        
+        const aboutTeamPhoto = document.getElementById('about-team-photo');
+        
+        const memberTextElements = document.querySelectorAll('.member-text');
+        const navDonateBtn = document.getElementById('nav-donate-btn');
+        const mobileNavDonateBtn = document.getElementById('mobile-nav-donate-btn');
+        const donateModal = document.getElementById('donate-modal');
+        const submitDonationBtn = document.getElementById('submit-donation-btn');
+        const donationCertificateModal = document.getElementById('donation-certificate-modal');
+        const downloadDonationCertificateBtn = document.getElementById('download-donation-certificate-btn');
+
+
+        // --- Initial Setup ---
+        playerCountEl.textContent = playerCount;
+        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        loadAllPhotos(); 
+        loadMemberText();
+        checkAdminStatus();
+        loadOpportunities();
+        startGallerySlideshow('main');
+        startGallerySlideshow('workshop');
+        setLanguage(initialLang);
+
+
+        // --- Helper Functions ---
+        const showModal = (modal) => modal.classList.replace('hidden', 'flex');
+        const hideModal = (modal) => modal.classList.replace('flex', 'hidden');
+
+        // --- Event Listeners ---
+        document.querySelectorAll('.close-modal-btn:not(#close-completion-btn)').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                 hideModal(e.target.closest('.fixed.inset-0'));
+                 if (e.target.closest('.fixed.inset-0') === feedbackModal) {
+                      feedbackQ1Input.value = '';
+                      feedbackQ2Input.value = '';
+                 }
+            });
+        });
+        
+        modals.forEach(modal => {
+             if (modal !== completionModal && modal !== feedbackModal) { 
+                 modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        hideModal(modal);
+                    }
+                 });
+             }
+        });
+
+         closeCompletionBtn.addEventListener('click', () => {
+             hideModal(completionModal);
+             showModal(feedbackModal);
+         });
+
+         // Fix: Generate PDF first, then close modal
+        downloadCertificateBtn.addEventListener('click', async () => {
+             await generateCertificatePdf(); 
+             hideModal(completionModal);
+             showModal(feedbackModal);
+         });
+         
+        submitFeedbackBtn.addEventListener('click', submitFeedback);
+
+         document.addEventListener('keydown', (e) => {
+             if (e.altKey && e.key === 'F6') {
+                 e.preventDefault(); 
+                 showAdminLoginBtn.classList.remove('hidden');
+             }
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+                keySequence = ''; return;
+            }
+             keySequence += e.key.toLowerCase();
+             keySequence = keySequence.slice(-5); 
+             if (keySequence === 'admin') {
+                 showAdminLoginBtn.classList.remove('hidden');
+                 keySequence = ''; 
+             }
+         });
+        startGameBtn.addEventListener('click', () => showModal(gameSetupModal));
+        letsPlayBtn.addEventListener('click', () => setupGame(true));
+        document.getElementById('join-session-btn').addEventListener('click', () => setupGame(false));
+        nextToGameBtn.addEventListener('click', runGameCountdown);
+        skipCardBtn.addEventListener('click', () => handleTurn(false));
+        correctAnswerBtn.addEventListener('click', () => handleTurn(true));
+        
+        openGalleryBtn.addEventListener('click', () => openGalleryModal('main'));
+        openWorkshopGalleryBtn.addEventListener('click', () => openGalleryModal('workshop'));
+
+        showAdminLoginBtn.addEventListener('click', () => showModal(adminLoginModal));
+        showAddOpportunityBtn.addEventListener('click', () => openOppModal());
+        adminLoginBtn.addEventListener('click', handleAdminLogin);
+        adminLogoutBtn.addEventListener('click', handleAdminLogout);
+        addOpportunitySubmitBtn.addEventListener('click', addOrUpdateOpportunity);
+
+        exportCsvBtn.addEventListener('click', exportPlayerDataAsCsv);
+        navDonateBtn.addEventListener('click', () => showModal(donateModal));
+        mobileNavDonateBtn.addEventListener('click', () => showModal(donateModal));
+        submitDonationBtn.addEventListener('click', handleDonationSubmit);
+        downloadDonationCertificateBtn.addEventListener('click', generateDonationCertificatePdf);
+
+
+        seeMoreBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const button = e.target;
+                const category = button.dataset.category;
+                const list = document.getElementById(`${category}-list`);
+                const cards = list.querySelectorAll('.opp-card');
+                const lang = localStorage.getItem('language') || 'en';
+
+                cards.forEach((card, index) => {
+                    card.classList.toggle('hidden', index >= oppLimit && button.dataset.state !== 'less');
+                });
+
+                if (cards.length > oppLimit) {
+                    button.classList.remove('hidden');
+                    if (button.dataset.state === 'less') {
+                         button.innerHTML = translations[lang]['see_less'];
+                         button.dataset.state = 'more'; // Toggle state
+                    } else {
+                         button.dataset.state = 'less';
+                         button.innerHTML = translations[lang]['see_more'];
+                    }
+                } else {
+                    button.classList.add('hidden');
+                }
+            });
+        });
+
+        playerLogTableBody.addEventListener('click', (event) => {
+            if (event.target.closest('.delete-log-btn')) {
+                deletePlayerLogEntry(event);
+            }
+        });
+        donationLogTableBody.addEventListener('click', (event) => {
+            if (event.target.closest('.download-donation-btn')) {
+                openDonationCertificate(event);
+            }
+            if (event.target.closest('.delete-donation-btn')) {
+                deleteDonationLogEntry(event);
+            }
+        });
+        document.getElementById('volunteer-list').addEventListener('click', (event) => {
+            if (event.target.closest('.delete-opp-btn')) {
+                const oppId = parseInt(event.target.closest('.opp-card').dataset.oppId, 10);
+                deleteOpportunity(oppId);
+            } else if (event.target.closest('.edit-opp-btn')) {
+                const oppId = parseInt(event.target.closest('.opp-card').dataset.oppId, 10);
+                openOppModal(oppId);
+            }
+        });
+        document.getElementById('job-list').addEventListener('click', (event) => {
+            if (event.target.closest('.delete-opp-btn')) {
+                const oppId = parseInt(event.target.closest('.opp-card').dataset.oppId, 10);
+                deleteOpportunity(oppId);
+            } else if (event.target.closest('.edit-opp-btn')) {
+                const oppId = parseInt(event.target.closest('.opp-card').dataset.oppId, 10);
+                openOppModal(oppId);
+            }
+        });
+        document.getElementById('event-list').addEventListener('click', (event) => {
+            if (event.target.closest('.delete-opp-btn')) {
+                const oppId = parseInt(event.target.closest('.opp-card').dataset.oppId, 10);
+                deleteOpportunity(oppId);
+            } else if (event.target.closest('.edit-opp-btn')) {
+                const oppId = parseInt(event.target.closest('.opp-card').dataset.oppId, 10);
+                openOppModal(oppId);
+            }
+        });
+        // --- Game Logic ---
+        function setupGame(isNewGame) {
+            currentPlayerName = document.getElementById('player-name-input').value.trim();
+            if (!currentPlayerName) {
+                alert('Please enter your name!');
+                return;
+            }
+
+            if (isNewGame) {
+                const newPlayerId = Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('generated-player-id').textContent = newPlayerId;
+                document.getElementById('player-id-display').classList.remove('hidden');
+                
+                gamePlayerNameEl.textContent = currentPlayerName;
+                hideModal(gameSetupModal);
+                showModal(gameRulesModal);
+
+            } else {
+                const partnerId = document.getElementById('partner-id-input').value.trim();
+                if (!partnerId) {
+                    alert("Please enter a partner's ID to join.");
+                    return;
+                }
+                console.log(`Player ${currentPlayerName} attempts to join session of ID ${partnerId}`);
+                gamePlayerNameEl.textContent = currentPlayerName;
+                hideModal(gameSetupModal);
+                showModal(gameRulesModal);
+            }
+        }
+
+        function runGameCountdown() {
+            hideModal(gameRulesModal);
+            showModal(gameInterfaceModal);
+            gameCountdownText.classList.remove('hidden');
+            gameArea.classList.add('hidden');
+            let count = 3;
+            gameCountdownText.textContent = count;
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    gameCountdownText.textContent = count;
+                } else if (count === 0) {
+                    gameCountdownText.textContent = 'GO!';
+                } else {
+                    clearInterval(countdownInterval);
+                    gameCountdownText.classList.add('hidden');
+                    gameArea.classList.remove('hidden');
+                    startNewGame();
+                }
+            }, 1000);
+        }
+
+        function startNewGame() {
+            gameRound = 0;
+            playerScore = 0;
+            gameScoreEl.textContent = playerScore;
+            currentCardDeck = [...cardImages].sort(() => 0.5 - Math.random());
+            nextCard();
+        }
+        
+        function nextCard() {
+            if (gameRound >= 5) {
+                endGame();
+                return;
+            }
+            gameCard.classList.remove('is-flipped');
+            setTimeout(() => {
+                cardImageEl.src = currentCardDeck.pop(); 
+                gameCard.classList.add('is-flipped');
+                startTimer();
+            }, 500);
+            gameRound++;
+        }
+
+        function startTimer() {
+            clearInterval(gameTimerInterval);
+            let timeLeft = 60;
+            gameTimerEl.textContent = timeLeft;
+            gameTimerInterval = setInterval(() => {
+                timeLeft--;
+                gameTimerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimerInterval);
+                    handleTurn(false); // Auto-skip if time runs out
+                }
+            }, 1000);
+        }
+
+        function handleTurn(isCorrect) {
+            clearInterval(gameTimerInterval);
+            if (isCorrect) {
+                playerScore++;
+            } else {
+                playerScore--;
+            }
+            gameScoreEl.textContent = playerScore;
+            nextCard();
+        }
+
+        function endGame() {
+            hideModal(gameInterfaceModal);
+            currentLogId = logPlayerData(currentPlayerName); 
+            if (currentLogId) { 
+                playerCount++;
+                localStorage.setItem('4youthPlayerCount', playerCount);
+                playerCountEl.textContent = playerCount;
+            }
+
+            document.getElementById('completion-name').textContent = currentPlayerName;
+            document.getElementById('completion-score').textContent = playerScore;
+            document.getElementById('completion-date').textContent = new Date().toLocaleDateString();
+
+            showModal(completionModal); // Show certificate first
+        }
+
+        function submitFeedback() {
+             const feedback1 = feedbackQ1Input.value.trim();
+             const feedback2 = feedbackQ2Input.value.trim();
+             const lang = localStorage.getItem('language') || 'en';
+             if (!feedback1 || !feedback2) {
+                 alert(translations[lang]['alert_feedback_required'] || "Please fill out both feedback questions before submitting.");
+                 return; 
+             }
+             
+             updateLogWithFeedback(currentLogId, feedback1, feedback2);
+             feedbackQ1Input.value = '';
+             feedbackQ2Input.value = '';
+             hideModal(feedbackModal);
+             currentLogId = null; 
+             currentPlayerName = '';
+        }
+        
+        // FIX: Updated PDF Generation Logic with proper imports and error handling
+        async function generateCertificatePdf() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const certificateElement = document.getElementById('completion-paper');
+                const playerName = document.getElementById('completion-name').textContent.trim() || 'player';
+
+                // Using html2canvas with CORS support enabled
+                const canvas = await html2canvas(certificateElement, { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: true 
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`4Youth_Certificate_${playerName.replace(/ /g, '_')}.pdf`);
+            } catch (error) {
+                console.error("Certificate Generation Error:", error);
+                alert("Could not generate PDF. Please try again.");
+            }
+        }
+
+        // --- Admin Logic ---
+        function checkAdminStatus() {
+            const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+            document.body.classList.toggle('admin-view', isAdmin);
+            showAdminLoginBtn.classList.add('hidden'); 
+            showAddOpportunityBtn.classList.toggle('hidden', !isAdmin);
+            adminPanel.classList.toggle('hidden', !isAdmin);
+            
+            if (isAdmin) {
+                displayPlayerLogs();
+                displayDonationLogs();
+                memberTextElements.forEach(el => {
+                    el.contentEditable = true;
+                    el.addEventListener('blur', saveMemberText);
+                });
+            } else {
+                memberTextElements.forEach(el => {
+                    el.contentEditable = false;
+                    el.removeEventListener('blur', saveMemberText);
+                });
+            }
+        }
+        
+        function handleAdminLogout() {
+            sessionStorage.removeItem('isAdmin');
+            checkAdminStatus(); 
+            keySequence = '';
+        }
+
+        function handleAdminLogin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            if (user === 'admin' && pass === 'rinyua.475;;4youth') {
+                sessionStorage.setItem('isAdmin', 'true');
+                hideModal(adminLoginModal);
+                checkAdminStatus();
+                 document.getElementById('admin-user').value = ''; 
+                 document.getElementById('admin-pass').value = '';
+            } else {
+                alert('Invalid credentials.');
+            }
+        }
+        
+        let editingOppId = null;
+        
+        function getOpportunities() {
+            return JSON.parse(localStorage.getItem('opportunities') || '[]');
+        }
+        
+        function saveOpportunities(opportunities) {
+            localStorage.setItem('opportunities', JSON.stringify(opportunities));
+            loadOpportunities(); 
+        }
+
+        function openOppModal(oppId = null) {
+            const lang = localStorage.getItem('language') || 'en';
+            const modalTitle = document.getElementById('opp-modal-title');
+            const submitBtn = document.getElementById('add-opportunity-submit-btn');
+            
+            document.getElementById('opp-edit-id').value = '';
+            document.getElementById('opp-category').value = 'volunteer';
+            document.getElementById('opp-title').value = '';
+            document.getElementById('opp-company').value = '';
+            document.getElementById('opp-desc').value = '';
+            document.getElementById('opp-deadline').value = '';
+            document.getElementById('opp-link').value = '';
+            document.getElementById('opp-image-url').value = ''; 
+            editingOppId = null;
+            if (oppId) {
+                const opportunities = getOpportunities();
+                const opp = opportunities.find(o => o.id === oppId);
+                if (opp) {
+                    editingOppId = oppId;
+                    modalTitle.textContent = translations[lang]['opp_modal_edit_title'];
+                    submitBtn.textContent = translations[lang]['opp_modal_update_button'];
+                    
+                    document.getElementById('opp-edit-id').value = opp.id;
+                    document.getElementById('opp-category').value = opp.category;
+                    document.getElementById('opp-title').value = opp.title;
+                    document.getElementById('opp-company').value = opp.company;
+                    document.getElementById('opp-desc').value = opp.desc;
+                    document.getElementById('opp-deadline').value = opp.deadline;
+                    document.getElementById('opp-link').value = opp.link;
+                    document.getElementById('opp-image-url').value = opp.image;
+                }
+            } else {
+                modalTitle.textContent = translations[lang]['opp_modal_add_title'];
+                submitBtn.textContent = translations[lang]['opp_modal_add_button'];
+                document.getElementById('opp-image-url').value = ''; 
+            }
+            
+            showModal(addOpportunityModal);
+        }
+
+        function addOrUpdateOpportunity() {
+            const opportunities = getOpportunities();
+            const imageUrl = document.getElementById('opp-image-url').value.trim();
+
+            const oppData = {
+                id: editingOppId || Date.now(),
+                category: document.getElementById('opp-category').value,
+                title: document.getElementById('opp-title').value,
+                company: document.getElementById('opp-company').value,
+                desc: document.getElementById('opp-desc').value,
+                deadline: document.getElementById('opp-deadline').value,
+                link: document.getElementById('opp-link').value,
+                image: imageUrl || 'https://placehold.co/400x250/415A77/FFFFFF?text=New+Opportunity' 
+            };
+            if(!oppData.title || !oppData.company || !oppData.desc || !oppData.deadline || !oppData.link) { 
+                alert('Please fill all fields.');
+                return; 
+            }
+
+            if (editingOppId) {
+                const index = opportunities.findIndex(o => o.id === editingOppId);
+                if (index !== -1) {
+                    opportunities[index] = oppData;
+                }
+            } else {
+                opportunities.push(oppData);
+            }
+
+            saveOpportunities(opportunities);
+            hideModal(addOpportunityModal);
+            editingOppId = null;
+        }
+        
+        function deleteOpportunity(oppId) {
+            const lang = localStorage.getItem('language') || 'en';
+            if (!confirm(translations[lang]['alert_confirm_delete_opportunity'] || "Are you sure you want to delete this opportunity?")) return;
+            let opportunities = getOpportunities();
+            opportunities = opportunities.filter(o => o.id !== oppId);
+            saveOpportunities(opportunities);
+        }
+        
+        function loadOpportunities() {
+            const opportunities = getOpportunities();
+            const lists = {
+                volunteer: document.getElementById('volunteer-list'),
+                job: document.getElementById('job-list'),
+                event: document.getElementById('event-list')
+            };
+            const lang = localStorage.getItem('language') || 'en';
+            const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+            Object.values(lists).forEach(list => {
+                list.querySelectorAll('.opp-card:not(.sample-card)').forEach(card => card.remove());
+            });
+            
+            if (opportunities.length > 0) {
+                opportunities.forEach(opp => {
+                    const newOppHTML = `
+                        <div class="bg-secondary dark:bg-brand-darkblue light:bg-white p-6 rounded-lg shadow-lg opp-card relative" 
+                        data-opp-id="${opp.id}">
+                            <div class="absolute top-2 right-2 flex space-x-1 admin-edit-trigger">
+                                <button class="btn-edit edit-opp-btn" data-key="opp_edit_button">${translations[lang]['opp_edit_button']}</button>
+                                <button class="btn-danger delete-opp-btn" data-key="opp_delete_button">${translations[lang]['opp_delete_button']}</button>
+                            </div>
+                            <img src="${opp.image}" alt="${opp.title}" class="rounded-md mb-4" onerror="this.src='https://placehold.co/400x250/415A77/FFFFFF?text=Image+Error'">
+                            <h4 class="text-xl font-bold text-brand-yellow">${opp.title}</h4>
+                            <p class="text-sm text-secondary mb-2">${opp.company}</p>
+                            <p class="mb-4">${opp.desc}</p>
+                            <div class="flex justify-between items-center text-sm">
+                                <span>${opp.deadline}</span>
+                                <a href="${opp.link}" target="_blank" class="font-semibold text-brand-yellow hover:underline">Apply Now</a>
+                            </div>
+                        </div>`;
+                    lists[opp.category].insertAdjacentHTML('beforeend', newOppHTML);
+                });
+            }
+            updateOpportunityView();
+        }
+
+
+        function updateOpportunityView() {
+            ['volunteer', 'job', 'event'].forEach(category => {
+                const list = document.getElementById(`${category}-list`);
+                const cards = list.querySelectorAll('.opp-card');
+                const seeMoreBtn = document.querySelector(`.see-more-btn[data-category="${category}"]`);
+                const lang = localStorage.getItem('language') || 'en';
+
+                cards.forEach((card, index) => {
+                    card.classList.toggle('hidden', index >= oppLimit && seeMoreBtn.dataset.state !== 'less');
+                });
+
+                if (cards.length > oppLimit) {
+                    seeMoreBtn.classList.remove('hidden');
+                    if (seeMoreBtn.dataset.state === 'less') {
+                         seeMoreBtn.innerHTML = translations[lang]['see_less'];
+                    } else {
+                         seeMoreBtn.dataset.state = 'more';
+                         seeMoreBtn.innerHTML = translations[lang]['see_more'];
+                    }
+                } else {
+                    seeMoreBtn.classList.add('hidden');
+                }
+            });
+        }
+
+
+        function logPlayerData(playerName) {
+            const logs = JSON.parse(localStorage.getItem('4youthPlayerLog') || '[]');
+            const logId = Date.now(); 
+            const newLog = {
+                id: logId,
+                name: playerName,
+                dateTime: new Date().toLocaleString(),
+                feedback1: '', 
+                feedback2: ''
+            };
+            logs.push(newLog);
+            localStorage.setItem('4youthPlayerLog', JSON.stringify(logs));
+            if (!adminPanel.classList.contains('hidden')) {
+                 displayPlayerLogs();
+            }
+            return logId;
+        }
+        
+        function updateLogWithFeedback(logId, feedback1, feedback2) {
+             let logs = JSON.parse(localStorage.getItem('4youthPlayerLog') || '[]');
+             const logIndex = logs.findIndex(log => log.id === logId);
+             if (logIndex !== -1) {
+                 logs[logIndex].feedback1 = feedback1;
+                 logs[logIndex].feedback2 = feedback2;
+                 localStorage.setItem('4youthPlayerLog', JSON.stringify(logs));
+                 if (!adminPanel.classList.contains('hidden')) {
+                     displayPlayerLogs();
+                 }
+             }
+        }
+
+
+         function displayPlayerLogs() {
+             const logs = JSON.parse(localStorage.getItem('4youthPlayerLog') || '[]');
+             const lang = localStorage.getItem('language') || 'en';
+             playerLogTableBody.innerHTML = ''; 
+
+             if (logs.length === 0) {
+                 playerLogTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">No player data recorded yet.</td></tr>';
+                 return;
+             }
+
+             logs.forEach((log) => { 
+                 const row = `<tr>
+                                <td>${log.name}</td>
+                                <td>${log.dateTime}</td>
+                                <td>${log.feedback1 || ''}</td> 
+                                <td>${log.feedback2 || ''}</td>
+                                <td>
+                                    <button class="btn-danger delete-log-btn" data-log-id="${log.id}">
+                                        ${translations[lang]['log_delete_button']}
+                                    </button>
+                                </td>
+                              </tr>`;
+                 playerLogTableBody.insertAdjacentHTML('beforeend', row);
+             });
+        }
+
+        function deletePlayerLogEntry(event) {
+            const lang = localStorage.getItem('language') || 'en';
+            if (!confirm(translations[lang]['alert_confirm_delete_player'] || "Are you sure you want to delete this player log?")) return;
+            
+            const idToDelete = parseInt(event.target.closest('.delete-log-btn').dataset.logId, 10);
+            let logs = JSON.parse(localStorage.getItem('4youthPlayerLog') || '[]');
+            const indexToDelete = logs.findIndex(log => log.id === idToDelete);
+            if (indexToDelete !== -1) {
+                logs.splice(indexToDelete, 1);
+                localStorage.setItem('4youthPlayerLog', JSON.stringify(logs));
+                playerCount = Math.max(0, playerCount - 1);
+                localStorage.setItem('4youthPlayerCount', playerCount);
+                playerCountEl.textContent = playerCount;
+                displayPlayerLogs(); 
+            }
+        }
+
+
+        function exportPlayerDataAsCsv() {
+            const logs = JSON.parse(localStorage.getItem('4youthPlayerLog') || '[]');
+            if (logs.length === 0) {
+                alert('No player data to export.');
+                return;
+            }
+            
+            const escapeCsv = (field) => {
+                 if (field === null || field === undefined) field = '';
+                 field = String(field);
+                 if (field.includes('"') || field.includes(',') || field.includes('\n')) {
+                     return `"${field.replace(/"/g, '""')}"`;
+                 }
+                 return field;
+            };
+            const header = 'PlayerName,DateAndTime,FeedbackHelpful,FeedbackImprovement\n';
+            const csvContent = logs.map(log => 
+                 `${escapeCsv(log.name)},${escapeCsv(log.dateTime)},${escapeCsv(log.feedback1)},${escapeCsv(log.feedback2)}`
+             ).join('\n');
+            const fullCsv = header + csvContent;
+
+            const blob = new Blob([fullCsv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', '4youth_player_log.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- Gallery Slideshow Logic ---
+        function getGalleryImages(type) {
+            const defaultImages = type === 'main' 
+                ? ['https://placehold.co/400x250/415A77/FFFFFF?text=Team+Activities'] 
+                : ['https://placehold.co/400x250/415A77/FFFFFF?text=Workshops'];
+            let images = (type === 'main') ? galleryImages : workshopImages;
+            if (!images || images.length === 0) {
+                images = defaultImages;
+            }
+            return images;
+        }
+
+        function startGallerySlideshow(type) {
+            const images = getGalleryImages(type);
+            const slideshowEl = type === 'main' ? galleryBoxSlideshow : workshopBoxSlideshow;
+            let currentIndex = 0;
+            
+            if (!slideshowEl) return;
+            
+            if (images.length === 0) {
+                 slideshowEl.src = 'https://placehold.co/400x250/415A77/FFFFFF?text=No+Images';
+                 return;
+            }
+            
+            const runSlideshow = () => {
+                if (!slideshowEl) return;
+                slideshowEl.style.opacity = '0';
+                setTimeout(() => {
+                    slideshowEl.src = images[currentIndex];
+                    slideshowEl.style.opacity = '1';
+                    currentIndex = (currentIndex + 1) % images.length;
+                }, 500);
+            };
+            
+            runSlideshow();
+            
+            if (type === 'main') {
+                 clearInterval(gallerySlideshowInterval);
+                 if (images.length > 1) { 
+                    gallerySlideshowInterval = setInterval(runSlideshow, 2000);
+                 }
+            } else {
+                 clearInterval(workshopSlideshowInterval);
+                 if (images.length > 1) { 
+                    workshopSlideshowInterval = setInterval(runSlideshow, 2000);
+                 }
+            }
+        }
+        
+        function openGalleryModal(type) {
+            const images = getGalleryImages(type);
+            const modalContent = type === 'main' ? galleryModalContent : workshopGalleryModalContent;
+            const modal = type === 'main' ? galleryModal : workshopGalleryModal;
+            modalContent.innerHTML = ''; 
+            if (images.length === 0 || (images.length === 1 && images[0].includes('placehold.co'))) {
+                modalContent.innerHTML = `<p class="col-span-full text-center text-secondary" data-key="no_images_uploaded">No images uploaded yet.</p>`;
+            } else {
+                 images.forEach(imgSrc => {
+                    modalContent.innerHTML += `<img src="${imgSrc}" class="rounded-lg w-full h-full object-cover">`;
+                 });
+            }
+            showModal(modal);
+        }
+        
+        // --- Admin Team Photo & Text Update ---
+        function loadAllPhotos() { 
+             const savedMainPhoto = localStorage.getItem('aboutTeamPhoto');
+             if (savedMainPhoto) {
+                 aboutTeamPhoto.src = savedMainPhoto;
+             }
+             
+             const memberPhotoIds = ['https://postimg.cc/4nK1t3g3', 'https://postimg.cc/KkhmNzWy', 'marina.jpg', 'img/buth.jpg', 'img/buth.jpg', 'img/socheata.jpg', 'img/yurin.jpg'];
+             memberPhotoIds.forEach(id => {
+                 const savedPhoto = localStorage.getItem(id);
+                 if (savedPhoto) {
+                     document.getElementById(id).src = savedPhoto;
+                 }
+             });
+        }
+        
+        function loadMemberText() {
+            const lang = localStorage.getItem('language') || 'en';
+            memberTextElements.forEach(el => {
+                const key = el.dataset.key;
+                const savedText = localStorage.getItem(key);
+                if (savedText) {
+                     el.innerText = savedText;
+                    el.setAttribute('data-no-translate', 'true'); 
+                } 
+                else if (translations[lang] && translations[lang][key]) {
+                   el.innerHTML = translations[lang][key]; 
+                    el.removeAttribute('data-no-translate'); 
+                }
+            });
+        }
+
+        
+        function saveMemberText(event) {
+            const element = event.target;
+            const key = element.dataset.key;
+            const newText = element.innerText;
+            localStorage.setItem(key, newText);
+            element.setAttribute('data-no-translate', 'true');
+        }
+
+        // --- Donation Logic ---
+        function handleDonationSubmit() {
+            const name = document.getElementById('donate-name').value.trim();
+            const contact = document.getElementById('donate-contact').value.trim();
+            const amount = document.getElementById('donate-amount').value.trim();
+            const lang = localStorage.getItem('language') || 'en';
+            if (!name || !contact || !amount || parseFloat(amount) <= 0) {
+                alert("Please fill in all donation fields correctly.");
+                return;
+            }
+            
+            const logs = JSON.parse(localStorage.getItem('donationsLog') || '[]');
+            const newDonation = {
+                id: Date.now(),
+                name: name,
+                contact: contact,
+                amount: parseFloat(amount).toFixed(2), 
+                dateTime: new Date().toLocaleString()
+            };
+            logs.push(newDonation);
+            localStorage.setItem('donationsLog', JSON.stringify(logs));
+            
+            document.getElementById('donate-name').value = '';
+            document.getElementById('donate-contact').value = '';
+            document.getElementById('donate-amount').value = '';
+            
+            hideModal(donateModal);
+            alert(translations[lang]['donate_thanks'] || "Thank you for your donation!");
+            if (!adminPanel.classList.contains('hidden')) {
+                 displayDonationLogs();
+            }
+        }
+
+        function displayDonationLogs() {
+             const logs = JSON.parse(localStorage.getItem('donationsLog') || '[]');
+             const lang = localStorage.getItem('language') || 'en';
+             donationLogTableBody.innerHTML = ''; 
+
+             if (logs.length === 0) {
+                 donationLogTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">No donation data recorded yet.</td></tr>';
+                 return;
+             }
+
+             logs.forEach((log) => { 
+                 const row = `<tr>
+                                <td>${log.name}</td>
+                                <td>${log.contact}</td>
+                                <td>$${log.amount}</td>
+                                <td>${log.dateTime}</td>
+                                <td class="flex flex-col gap-1">
+                                    <button class="btn-primary download-donation-btn" data-log-id="${log.id}" style="font-size: 0.75rem; padding: 2px 6px;">
+                                        ${translations[lang]['donation_cert_download_button']}
+                                    </button>
+                                    <button class="btn-danger delete-donation-btn" data-log-id="${log.id}" style="font-size: 0.75rem; padding: 2px 6px; margin-top: 4px;">
+                                        ${translations[lang]['log_delete_button']}
+                                    </button>
+                                </td>
+                              </tr>`;
+                 donationLogTableBody.insertAdjacentHTML('beforeend', row);
+             });
+        }
+        
+        function deleteDonationLogEntry(event) {
+            const lang = localStorage.getItem('language') || 'en';
+            if (!confirm(translations[lang]['alert_confirm_delete_donation'] || "Are you sure you want to delete this donation log?")) return;
+
+            const idToDelete = parseInt(event.target.closest('.delete-donation-btn').dataset.logId, 10);
+            let logs = JSON.parse(localStorage.getItem('donationsLog') || '[]');
+            const indexToDelete = logs.findIndex(log => log.id === idToDelete);
+            if (indexToDelete !== -1) {
+                logs.splice(indexToDelete, 1);
+                localStorage.setItem('donationsLog', JSON.stringify(logs));
+                displayDonationLogs(); 
+            }
+        }
+        
+        function openDonationCertificate(event) {
+            const logId = parseInt(event.target.closest('.download-donation-btn').dataset.logId, 10);
+            const logs = JSON.parse(localStorage.getItem('donationsLog') || '[]');
+            const log = logs.find(l => l.id === logId);
+            const lang = localStorage.getItem('language') || 'en';
+            if (log) {
+                const amountText = `$${log.amount}`;
+                const certBodyPrefix = translations[lang]['donation_cert_body'] || "In grateful recognition of your generous donation of";
+
+                document.getElementById('donation-cert-name').textContent = log.name;
+                document.getElementById('donation-cert-date').textContent = new Date(log.dateTime).toLocaleDateString();
+                const certBodyEl = document.querySelector('#donation-paper p[data-key="donation_cert_body"]');
+                certBodyEl.innerHTML = `${certBodyPrefix} <span class="font-bold text-lg">${amountText}</span> dollars. Your support helps us empower young individuals.`;
+                downloadDonationCertificateBtn.dataset.logId = log.id;
+                showModal(donationCertificateModal);
+            }
+        }
+        
+        // FIX: Updated Donation PDF Generation Logic
+        async function generateDonationCertificatePdf() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const certificateElement = document.getElementById('donation-paper');
+                const donorName = document.getElementById('donation-cert-name').textContent.trim() || 'donor';
+
+                // Use html2canvas with CORS settings
+                const canvas = await html2canvas(certificateElement, { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: true
+                });
+                const imgData = canvas.toDataURL('image/png');
+                
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`4Youth_Donation_Certificate_${donorName.replace(/ /g, '_')}.pdf`);
+            } catch (error) {
+                console.error("Donation Certificate Error:", error);
+                alert("Could not generate PDF. Please try again.");
+            }
+        }
+    });
+    </script> 
+</body>
